@@ -206,23 +206,46 @@ def main():
 			predictor = joblib.load(open(os.path.join("resources/svc_model.pkl"),"rb"))
 			prediction = predictor.predict(vect_text)
 			sentiment={1:'You believe in man-made climate change', 2:'The tweet links to factual news about climate change', 0:'The tweet neither supports nor refutes the belief of man-made climate change', -1:'The tweet does not believe in man-made climate change'}   
+            # When model has successfully run, will print prediction
 			st.success("{}".format(sentiment[prediction[0]]))
 			
      
      
        
-			# When model has successfully run, will print prediction
-		#if st.button("Upload your data"):
-			#uploaded_fil = st.file_uploader("Choose a file")
-			#df2 = pd.read_csv(uploaded_fil)
-			#st.write([['sentiment', 'message']]).head(5)
-		#if st.button("Predict on your data"):
 			
-			#vect_text = tweet_cv.transform(df2)
-			#predictor = joblib.load(open(os.path.join("resources/ridge_model.pkl"),"rb"))
-			#prediction = predictor.predict(df2)
-			#st.write(prediction)
-			#st.success("{}".format(sentiment[prediction[0]]))      
+		uploaded_file = st.file_uploader("Choose a file")
+		if uploaded_file is not None:
+		# Can be used wherever a "file-like" object is accepted:
+			dataframe = pd.read_csv(uploaded_file)  
+			st.write(dataframe)
+    	
+    		
+		if st.button("Predict on your data"):
+			
+			vect_frame = tweet_cv.transform(dataframe['message'])
+			predictor = joblib.load(open(os.path.join("resources/ridge_model.pkl"),"rb"))
+			dataframe['sentiment'] = predictor.predict(vect_frame)
+			st.write(dataframe)
+			
+
+
+			plt.rcParams['figure.figsize'] = [50, 5]
+			fig2 = plt.figure(figsize = (10, 5))
+
+
+        
+			class_dist = pd.DataFrame(list(dataframe['sentiment'].value_counts()),index=['Pro', 'News', 'Neutral', 'Anti'],columns=['Count'])
+			# Plot class distribution	
+			sns.set(style="whitegrid")
+			sns.barplot(x=class_dist.index, y=class_dist.Count,palette="Set3")
+			plt.title('Class Distributions') 
+			st.pyplot(fig2)
+
+
+
+
+           
+    
             
 
 
